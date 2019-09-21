@@ -1,0 +1,88 @@
+{
+  "assetsByChunkName": {
+    "path---walk-or-run": [
+      "path---walk-or-run-ba40ed392a4f0ccd497c.js",
+      "path---walk-or-run-ba40ed392a4f0ccd497c.js.map"
+    ],
+    "component---src-pages-index-js": [
+      "component---src-pages-index-js-e1a6c51a85a3b6b94411.js",
+      "component---src-pages-index-js-e1a6c51a85a3b6b94411.js.map"
+    ],
+    "path---": [
+      "path----557518bd178906f8d58a.js",
+      "path----557518bd178906f8d58a.js.map"
+    ],
+    "component---node-modules-gatsby-plugin-offline-app-shell-js": [
+      "component---node-modules-gatsby-plugin-offline-app-shell-js-5c4c5a0f7af9dc69d6d7.js",
+      "component---node-modules-gatsby-plugin-offline-app-shell-js-5c4c5a0f7af9dc69d6d7.js.map"
+    ],
+    "component---src-templates-blog-post-js": [
+      "component---src-templates-blog-post-js-5c5963565a8ba6f117fe.js",
+      "component---src-templates-blog-post-js-5c5963565a8ba6f117fe.js.map"
+    ],
+    "component---src-layouts-index-js": [
+      "component---src-layouts-index-js-9737156d1202bb666329.js",
+      "component---src-layouts-index-js-9737156d1202bb666329.js.map"
+    ],
+    "path---index": [
+      "path---index-2d0248ac41ee0b1cfcd0.js",
+      "path---index-2d0248ac41ee0b1cfcd0.js.map"
+    ],
+    "path---hello-world": [
+      "path---hello-world-81a273959d88c67c27a9.js",
+      "path---hello-world-81a273959d88c67c27a9.js.map"
+    ],
+    "path---fine-tuning-captcha": [
+      "path---fine-tuning-captcha-590cbc9f828edf501b65.js",
+      "path---fine-tuning-captcha-590cbc9f828edf501b65.js.map"
+    ],
+    "component---src-pages-404-js": [
+      "component---src-pages-404-js-4503918ea3a16cfcdb75.js",
+      "component---src-pages-404-js-4503918ea3a16cfcdb75.js.map"
+    ],
+    "commons": [
+      "commons-8f99984d54734a56448f.js",
+      "build-js-styles.css",
+      "commons-8f99984d54734a56448f.js.map",
+      "build-js-styles.css.map"
+    ],
+    "path---404-html": [
+      "path---404-html-a0e39f21c11f6a62c5ab.js",
+      "path---404-html-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "path---k-8-s-gfw": [
+      "path---k-8-s-gfw-fe05cc23d75bcf433781.js",
+      "path---k-8-s-gfw-fe05cc23d75bcf433781.js.map"
+    ],
+    "path---offline-plugin-app-shell-fallback": [
+      "path---offline-plugin-app-shell-fallback-a0e39f21c11f6a62c5ab.js",
+      "path---offline-plugin-app-shell-fallback-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "path---back-to-2009": [
+      "path---back-to-2009-0237718c65e445b1656e.js",
+      "path---back-to-2009-0237718c65e445b1656e.js.map"
+    ],
+    "app": [
+      "app-7efba81ce5767b22ac4d.js",
+      "build-js-styles.css",
+      "app-7efba81ce5767b22ac4d.js.map",
+      "build-js-styles.css.map"
+    ],
+    "path---full-engagement": [
+      "path---full-engagement-162aa3f79dc574856b06.js",
+      "path---full-engagement-162aa3f79dc574856b06.js.map"
+    ],
+    "path---cs-is-big-hummer": [
+      "path---cs-is-big-hummer-48352afff05b8e101e1b.js",
+      "path---cs-is-big-hummer-48352afff05b8e101e1b.js.map"
+    ],
+    "path---make-learning-more-deep-readme": [
+      "path---make-learning-more-deep-readme-6d9fec65ad25603abc28.js",
+      "path---make-learning-more-deep-readme-6d9fec65ad25603abc28.js.map"
+    ],
+    "path---404": [
+      "path---404-a0e39f21c11f6a62c5ab.js",
+      "path---404-a0e39f21c11f6a62c5ab.js.map"
+    ]
+  }
+}

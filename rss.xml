@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[huan9huan的博客]]></title><description><![CDATA[产品之路]]></description><link>https://huan9huan.com/</link><generator>RSS for Node</generator><lastBuildDate>Sat, 21 Sep 2019 03:05:33 GMT</lastBuildDate><item><title><![CDATA[屠龙技是否有用的关键是是否精通了它]]></title><description><![CDATA[最近沉溺于学习kubernetes，教程是  https://time.geekbang.org/column/11…]]></description><link>https://huan9huan.com//make-learning-more-deep/README/</link><guid isPermaLink="false">https://huan9huan.com//make-learning-more-deep/README/</guid><pubDate>Tue, 16 Oct 2018 10:00:00 GMT</pubDate><content:encoded>&lt;p&gt;最近沉溺于学习kubernetes，教程是 &lt;a href=&quot;https://time.geekbang.org/column/116&quot;&gt;https://time.geekbang.org/column/116&lt;/a&gt; ，每周的三节课，算下来大约要花了一整天做实践，业余时间也花一些精力琢磨其中的核心概念。&lt;/p&gt;
+&lt;p&gt;有时候，会存在这么一个念头：在大公司大系统中有用，但是自己的一些项目中是否也有用那？也就是说k8s看起来是个屠龙之技，学了这个有什么长期的意义那？&lt;/p&gt;
+&lt;p&gt;碰巧，看到一个文章，万维刚的精英日课中讲到的，如何让屠龙技有用，其中讲到一些学国际关系的人如何做产品经理的职位的，以及学哲学的人如何在金融投资大获成功的。对比自己，其实一个核心体会是：
+&lt;strong&gt;是否是屠龙之技不重要，重要的是自己是否能够精通，否则很容易学一门忘一门&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;分开看：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;精通一个技能，就是培养长板，而长板的比拼是社会分工的必然要求；
+精通一个技能，说明你有一套适合自己的学习方法，而这个方法可以被移植到别的领域的；&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;当然，精通是要花大量的时间和专注度在上面，特别是大量的实践和应用才可以。所以：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;精通的东西不可能过多,半年能精通一个东西就不错了&lt;br&gt;
+要区分精通和熟悉和入门，给自己的掌握程度定性质  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;这两年，Kubernetes的学习是如此，DeepLearning的学习也应该是这样，还有ReactJS。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;与其担心自己学的东西是否有用，不如关心这个东西是否真的学会了。&lt;/strong&gt;&lt;/p&gt;</content:encoded></item><item><title><![CDATA[k8s安装的翻墙攻略]]></title><description><![CDATA[一直用docker，但是感觉docker总是独立的用，除了解决打包的问题，应用的依赖关系还是表达的很不好。
+这次在极客时间上有张磊开的k8s的课程，果断入手买了。 学到了k8s的安装，就碰到了棘手的翻墙问题（我是在阿里云上CentOS…]]></description><link>https://huan9huan.com//k8s-gfw/</link><guid isPermaLink="false">https://huan9huan.com//k8s-gfw/</guid><pubDate>Wed, 19 Sep 2018 10:00:00 GMT</pubDate><content:encoded>&lt;p&gt;一直用docker，但是感觉docker总是独立的用，除了解决打包的问题，应用的依赖关系还是表达的很不好。
+这次在极客时间上有张磊开的k8s的课程，果断入手买了。&lt;/p&gt;
+&lt;p&gt;学到了k8s的安装，就碰到了棘手的翻墙问题（我是在阿里云上CentOS实验和学习的），核心问题是两个：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;kubeadm的安装，因为yum/apt源使用packages.cloud.google.com而无法访问的问题&lt;/li&gt;
+&lt;li&gt;gcr.io 无法访问从而造成k8s启动所必须的的images无法拉取&lt;/li&gt;
+&lt;li&gt;kubeadm init的时候，远程探测版本撞墙问题&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;一个个解决。&lt;/p&gt;
+&lt;h2&gt;Problem 1: kubeadm的yum安装&lt;/h2&gt;
+&lt;p&gt;方法尝试用了两个，一个是shadowsocks代理（前提你要有国外的vps），一个是使用aliyun自己的yum镜像，后者相对简单一些。&lt;/p&gt;
+&lt;p&gt;按照通常的方法，要求加入一个kubernetes.repo的源:&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;cat &amp;lt;&amp;lt;EOF &amp;gt; /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+#baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=0
+EOF
+
+yum -y install epel-release
+yum clean all
+yum makecache&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;p&gt;然后安装 kubeadm和kubelet应该成功：&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;yum -y install kubelet kubeadm kubectl 
+kubelet --version&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;p&gt;注意我这里的版本是 v1.11.3，下面会用。&lt;/p&gt;
+&lt;h2&gt;Problem 2: k8s.gcr.io 访问问题&lt;/h2&gt;
+&lt;p&gt;因为k8s的Static Pod启动需要从 k8s.gcr.io 上拉取必要的镜像，但是这个网站上被封掉了，所以需从别的镜像中拉取这些镜像，然后tag成为 k8s.gcr.io 开头，然后 dockerd就可以从本地拉取了镜像。国内的镜像我使用了 &lt;code class=&quot;language-text&quot;&gt;registry.cn-hangzhou.aliyuncs.com/google_containers&lt;/code&gt; 看起来同步的不错。&lt;/p&gt;
+&lt;p&gt;运行脚本是这样的：&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;MY_REGISTRY=registry.cn-hangzhou.aliyuncs.com/google_containers
+#registry.cn-hangzhou.aliyuncs.com/google-images
+VERSION=v1.11.3
+
+## 拉取镜像
+docker pull ${MY_REGISTRY}/kube-apiserver-amd64:${VERSION}
+docker pull ${MY_REGISTRY}/kube-controller-manager-amd64:${VERSION}
+docker pull ${MY_REGISTRY}/kube-scheduler-amd64:${VERSION}
+docker pull ${MY_REGISTRY}/kube-proxy-amd64:${VERSION}
+docker pull ${MY_REGISTRY}/etcd-amd64:3.2.18
+docker pull ${MY_REGISTRY}/pause-amd64:3.1
+docker pull ${MY_REGISTRY}/coredns:1.1.3
+docker pull ${MY_REGISTRY}/pause:3.1
+
+## 添加Tag
+docker tag ${MY_REGISTRY}/kube-apiserver-amd64:${VERSION} k8s.gcr.io/kube-apiserver-amd64:${VERSION}
+docker tag ${MY_REGISTRY}/kube-scheduler-amd64:${VERSION} k8s.gcr.io/kube-scheduler-amd64:${VERSION}
+docker tag ${MY_REGISTRY}/kube-controller-manager-amd64:${VERSION} k8s.gcr.io/kube-controller-manager-amd64:${VERSION}
+docker tag ${MY_REGISTRY}/kube-proxy-amd64:${VERSION} k8s.gcr.io/kube-proxy-amd64:${VERSION}
+docker tag ${MY_REGISTRY}/etcd-amd64:3.2.18 k8s.gcr.io/etcd-amd64:3.2.18
+docker tag ${MY_REGISTRY}/pause-amd64:3.1 k8s.gcr.io/pause-amd64:3.1
+docker tag ${MY_REGISTRY}/coredns:1.1.3 k8s.gcr.io/coredns:1.1.3
+docker tag ${MY_REGISTRY}/pause:3.1 k8s.gcr.io/pause:3.1&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;p&gt;注意：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;不同的版本需要特定version的image，如果长期跟踪kubeadm和kubectl，要注意维护这个image列表  &lt;/li&gt;
+&lt;li&gt;如果使用代理方案，注意 &lt;code class=&quot;language-text&quot;&gt;http_proxy=&amp;lt;proxy address&amp;gt;:&amp;lt;proxy port&amp;gt; docker pull&lt;/code&gt; 并不能生效，而是要让docker daemon感知到proxy的存在。这是一个坑点，但不是docker的设计缺陷，而是image pull的操作是docker服务进程管理的，当然代理要让这个进程使用。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;Problem 3: 一个小尾巴，关闭版本探测&lt;/h3&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;kubeadm init --kubernetes-version=v1.11.3&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;p&gt;否则kubeadm会访问一个墙外的文件，找这个版本， 也会卡住。&lt;/p&gt;
+&lt;p&gt;然后就可以愉快的玩k8s了，真呀嘛真好用，不浪费这一番折腾。&lt;/p&gt;
+&lt;h3&gt;墙很害人，但是墙让人更加强壮，不会翻墙，就被淘汰&lt;/h3&gt;</content:encoded></item><item><title><![CDATA[是走还是跑，这是一个问题]]></title><description><![CDATA[本文主要实践了一个完成的DeepLearning的最小工作集 构造测试数据集 做训练 问题是：能够找到一些图片，区分出图片是走路还是跑步 (walk or run)。 1. 构造训练集 做了一个快速构造训练集的工具 - 一个基于chrome的插件，在google images…]]></description><link>https://huan9huan.com//walk-or-run/</link><guid isPermaLink="false">https://huan9huan.com//walk-or-run/</guid><pubDate>Sun, 12 Aug 2018 15:00:00 GMT</pubDate><content:encoded>&lt;p&gt;本文主要实践了一个完成的DeepLearning的最小工作集&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;构造测试数据集&lt;/li&gt;
+&lt;li&gt;做训练&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;问题是：能够找到一些图片，区分出图片是走路还是跑步 (walk or run)。&lt;/p&gt;
+&lt;h2&gt;1. 构造训练集&lt;/h2&gt;
+&lt;p&gt;做了一个快速构造训练集的工具 - 一个基于chrome的插件，在google images中可以快速的选择图片集，然后定义标签，上传到google storage中:&lt;/p&gt;
+&lt;p&gt;
+  &lt;a
+    class=&quot;gatsby-resp-image-link&quot;
+    href=&quot;/static/image-crawler-ba7012adccd3f2b2e56dba7985cb54bd-b042b.jpg&quot;
+    style=&quot;display: block&quot;
+    target=&quot;_blank&quot;
+    rel=&quot;noopener&quot;
+  &gt;
+  
+  &lt;span
+    class=&quot;gatsby-resp-image-wrapper&quot;
+    style=&quot;position: relative; display: block; ; max-width: 590px; margin-left: auto; margin-right: auto;&quot;
+  &gt;
+    &lt;span
+      class=&quot;gatsby-resp-image-background-image&quot;
+      style=&quot;padding-bottom: 95.65916398713826%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAATABQDASIAAhEBAxEB/8QAGQABAAMBAQAAAAAAAAAAAAAAAAMEBQEC/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQP/2gAMAwEAAhADEAAAAdLxHydLSyTFlKT1wP8A/8QAHBAAAgICAwAAAAAAAAAAAAAAAQIAExIhAwQQ/9oACAEBAAEFAqUlSSgCMwzxViROTT9jXn//xAAYEQADAQEAAAAAAAAAAAAAAAACE1EAEP/aAAgBAwEBPwFhXMK9/8QAGBEAAwEBAAAAAAAAAAAAAAAAAhJRABD/2gAIAQIBAT8BQZkGd//EAB4QAAEDBAMAAAAAAAAAAAAAAAABAhEQISJxMTJR/9oACAEBAAY/Auxd5yo606M5TdHx6Mp//8QAHBABAAIDAQEBAAAAAAAAAAAAAREhADFBEFFh/9oACAEBAAE/IZmBzlmj5Z4igtSyLo5ZIZkkF9yR3kkpFes4am3915//2gAMAwEAAgADAAAAEHQQfP/EABgRAAIDAAAAAAAAAAAAAAAAAAARARAx/9oACAEDAQE/EFhonK//xAAYEQADAQEAAAAAAAAAAAAAAAAAAREQIf/aAAgBAgEBPxCwkGu5/8QAHBABAAMAAgMAAAAAAAAAAAAAAQARITGBQVGR/9oACAEBAAE/EBBEcgjUb2W6sVwBV/RA6XLS8FmZ3MZwCzaqceM+xycZEKkFSLrNvSocpBb0EZ//2Q==&apos;); background-size: cover; display: block;&quot;
+    &gt;
+      &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px white;&quot;
+        alt=&quot;image crawler&quot;
+        title=&quot;&quot;
+        src=&quot;/static/image-crawler-ba7012adccd3f2b2e56dba7985cb54bd-f8fb9.jpg&quot;
+        srcset=&quot;/static/image-crawler-ba7012adccd3f2b2e56dba7985cb54bd-e8976.jpg 148w,
+/static/image-crawler-ba7012adccd3f2b2e56dba7985cb54bd-63df2.jpg 295w,
+/static/image-crawler-ba7012adccd3f2b2e56dba7985cb54bd-f8fb9.jpg 590w,
+/static/image-crawler-ba7012adccd3f2b2e56dba7985cb54bd-85e3d.jpg 885w,
+/static/image-crawler-ba7012adccd3f2b2e56dba7985cb54bd-d1924.jpg 1180w,
+/static/image-crawler-ba7012adccd3f2b2e56dba7985cb54bd-b042b.jpg 1244w&quot;
+        sizes=&quot;(max-width: 590px) 100vw, 590px&quot;
+      /&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    &lt;/p&gt;
+&lt;p&gt;基于这个工具, 大约花了半小时时间，在google image中搜索”run”, “walk”, “run outside” , “walk outside”等，获得到约600张图片。&lt;/p&gt;
+&lt;p&gt;然后上传到了 &lt;a href=&quot;https://www.kaggle.com/huan9huan/walk-or-run&quot;&gt;kaggle dataset&lt;/a&gt;中：
+
+  &lt;a
+    class=&quot;gatsby-resp-image-link&quot;
+    href=&quot;/static/banner-20f2705a92d70b9cf3b47b85702cec06-47884.png&quot;
+    style=&quot;display: block&quot;
+    target=&quot;_blank&quot;
+    rel=&quot;noopener&quot;
+  &gt;
+  
+  &lt;span
+    class=&quot;gatsby-resp-image-wrapper&quot;
+    style=&quot;position: relative; display: block; ; max-width: 590px; margin-left: auto; margin-right: auto;&quot;
+  &gt;
+    &lt;span
+      class=&quot;gatsby-resp-image-background-image&quot;
+      style=&quot;padding-bottom: 21.052631578947366%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAECAYAAACOXx+WAAAACXBIWXMAAAsSAAALEgHS3X78AAAAcUlEQVQY05WPMQ5AERBEHVKCuzgD99IIWolaolEqmB8SKv8nf5qdbN5OZgle1HtfM4SA1trxtdblxxjXO3JbbngGMcagtUaMEZxzeO8PcwslX+1SSqCUQkoJpRSEEMg5/w/cYCkFzrnVyloLY8znu1MPXkItP/Jwk60AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;
+    &gt;
+      &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px white;&quot;
+        alt=&quot;image crawler&quot;
+        title=&quot;&quot;
+        src=&quot;/static/banner-20f2705a92d70b9cf3b47b85702cec06-fb8a0.png&quot;
+        srcset=&quot;/static/banner-20f2705a92d70b9cf3b47b85702cec06-1a291.png 148w,
+/static/banner-20f2705a92d70b9cf3b47b85702cec06-2bc4a.png 295w,
+/static/banner-20f2705a92d70b9cf3b47b85702cec06-fb8a0.png 590w,
+/static/banner-20f2705a92d70b9cf3b47b85702cec06-526de.png 885w,
+/static/banner-20f2705a92d70b9cf3b47b85702cec06-fa2eb.png 1180w,
+/static/banner-20f2705a92d70b9cf3b47b85702cec06-08f6a.png 1770w,
+/static/banner-20f2705a92d70b9cf3b47b85702cec06-47884.png 1900w&quot;
+        sizes=&quot;(max-width: 590px) 100vw, 590px&quot;
+      /&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    &lt;/p&gt;
+&lt;h2&gt;训练 - 使用DenseNet做fine tuning&lt;/h2&gt;
+&lt;p&gt;直接说结果，使用keras的DenseNet的pre-trained的模型，加上一个inception的结构作为head model来进一步的提取DenseNet的feature，获得到了 &lt;strong&gt;90%&lt;/strong&gt; 的成功率（validation dataset上）。kernels参见 &lt;a href=&quot;https://www.kaggle.com/huan9huan/walk-or-run-fine-tuning?scriptVersionId=5052538&quot;&gt;walk or run, fine tuning
+&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;具体来说:&lt;/p&gt;
+&lt;h3&gt;1.数据分割&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;80%训练集（train dataset）&lt;/li&gt;
+&lt;li&gt;20%交叉测试集（validation dataset）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;2. 模型构造：&lt;/h3&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;# build model
+
+def conv2d_bn(x,
+              filters,
+              num_row,
+              num_col,
+              padding=&amp;#39;same&amp;#39;,
+              strides=(1, 1),
+              name=None):
+    filters = int(filters)
+    x = Conv2D(
+        filters, (num_row, num_col),
+        strides=strides,
+        padding=padding,
+        use_bias=False,
+        name=name + &amp;quot;_conv&amp;quot;)(x)
+    x = BatchNormalization(scale=False, name=name + &amp;quot;_bn&amp;quot;)(x)
+    x = Activation(&amp;#39;relu&amp;#39;, name=name)(x)
+    return x 
+
+def incept(x, name=&amp;quot;incept&amp;quot;, scale=1):
+    branch1x1 = conv2d_bn(x, 64 // scale, 1, 1, name = name + &amp;quot;-1x1&amp;quot;)
+
+    branch5x5 = conv2d_bn(x, 48 // scale , 1, 1, name = name + &amp;quot;-5x5-1x1&amp;quot;)
+    branch5x5 = conv2d_bn(branch5x5, 64 // scale, 5, 5, name = name + &amp;quot;-5x5-5x5&amp;quot;)
+
+    branch3x3dbl = conv2d_bn(x, 64 // scale, 1, 1, name = name + &amp;quot;-3x3-1x1&amp;quot;)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96 // scale, 3, 3, name = name + &amp;quot;-3x3-3x3-1&amp;quot;)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96 // scale, 3, 3, name = name + &amp;quot;-3x3-3x3-2&amp;quot;)
+
+    branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding=&amp;#39;same&amp;#39;)(x)
+    branch_pool = conv2d_bn(branch_pool, 32 // scale, 1, 1, name = name + &amp;quot;-pool&amp;quot;)
+    return concatenate(
+        [branch1x1, branch5x5, branch3x3dbl, branch_pool],
+        name= name + &amp;#39;-all&amp;#39;)
+  
+def build_head_model(input_shape, n_classes = 2):
+    head_input = Input(shape=input_shape, name = &amp;#39;head_input&amp;#39;)
+    x = head_input
+    x = Dropout(0.8)(x)
+    x = incept(x, name=&amp;quot;i2&amp;quot;, scale=2)
+    x = Flatten()(x)
+    x = Dropout(0.8)(x)
+    x = Dense(n_classes, activation=&amp;#39;softmax&amp;#39;, name=&amp;#39;prediction&amp;#39;)(x)
+    return Model(input = head_input, output = x, name=&amp;quot;dogs_ft_head_model&amp;quot;)
+  
+def build_model(pretrained_model_name, n_classes):
+    input = Input(shape=(224,224,3), name = &amp;#39;image_input&amp;#39;)
+    x = input
+    pretrained_model, _, preprocess = load_base(pretrained_model_name)
+    for layer in pretrained_model.layers[:-1]:
+        layer.trainable = False
+    
+    x = pretrained_model(x)
+    head_model = build_head_model(x.get_shape()[1:].as_list(), n_classes)
+    x = head_model(x)
+  
+    model = Model(input = input, output = x)
+    model.compile(metrics=[&amp;quot;accuracy&amp;quot;],
+                  loss=&amp;quot;categorical_crossentropy&amp;quot;,
+                  optimizer=optimizers.Adadelta())
+    
+    return model, head_model, preprocess&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;h3&gt;3. 其他的一些超参：&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;batch size: 32&lt;/li&gt;
+&lt;li&gt;steps each epoch: 160&lt;/li&gt;
+&lt;li&gt;优化器是Adadelta，缺省参数&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;注：本测试基于Google Colaboratory Notebook上提供的K80 GPU。&lt;/strong&gt;&lt;/p&gt;
+&lt;h2&gt;补充：其他的pre-trained的模型的结果&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;使用了 Vgg16或者ResNet50只能得到大约80%的val accu，不过值得注意的是vgg16的val loss很低(0.48)。&lt;/li&gt;
+&lt;li&gt;使用了 InceptionResNetV2，得到了83%的成功率。&lt;/li&gt;
+&lt;li&gt;使用了 MobileNetV2，得到了84%的成功率。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;将来的工作&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;自己抓取数据的时候，由于这个数据集是反映了我自己对walk还是run的判断，可能存在系统性偏误。解决的办法是让不同的人去贡献数据，从而可以消除这种系统性偏差。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;到底是什么特征在walk or run的判断做了关键的作用，也就是“why it works”的问题。一个方法是遍历数据集，然后得到walk和run的各自的最大的confidence的集合，从而比较分析这些数据的特征。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;val loss和val accuracy并不一致，比如DenseNet的val loss是0.8，但是accuray是 90%，而vgg的loss是0.48，但是accuracy却是0.8左右，他们如何统一起来做模型的筛选，需要进一步的研究。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;</content:encoded></item><item><title><![CDATA[Fine Tuning Captcha]]></title><description><![CDATA[本文是对  https://ypw.io/captcha/  的验证码训练的改造，目的是解决不容易训练成功的å问题。 方法是使用预先生成少量数据先训练出较好的模型，然后再使用online的captcha做训练，更加容易训练成功。 预先生成一部分数据作为稳定的数据集(offline…]]></description><link>https://huan9huan.com//fine-tuning-captcha/</link><guid isPermaLink="false">https://huan9huan.com//fine-tuning-captcha/</guid><pubDate>Mon, 23 Jul 2018 11:00:00 GMT</pubDate><content:encoded>&lt;p&gt;本文是对 &lt;a href=&quot;https://ypw.io/captcha/&quot;&gt;https://ypw.io/captcha/&lt;/a&gt; 的验证码训练的改造，目的是解决不容易训练成功的å问题。&lt;/p&gt;
+&lt;p&gt;方法是使用预先生成少量数据先训练出较好的模型，然后再使用online的captcha做训练，更加容易训练成功。&lt;/p&gt;
+&lt;h2&gt;预先生成一部分数据作为稳定的数据集(offline dataset)&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;npy_file_count = 10
+count_each_npy = 128
+rootdir=&amp;quot;./data/&amp;quot;
+!rm -fr ${rootdir}
+mkdir_p(rootdir)
+
+print(&amp;quot;start to generate, total count - &amp;quot; + str(npy_file_count * count_each_npy))
+for t in range(0,npy_file_count):
+   X, y = next(gen(count_each_npy))
+   np.save(rootdir + str(t) + &amp;quot;.npy&amp;quot;, [X, y])&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;h2&gt;编写对offline数据集的产生函数&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;def batch_gen(batch_size = 16):
+  batch_idx = 0
+  while True:
+      [X_all, y_all] = np.load(rootdir + str(batch_idx) + &amp;quot;.npy&amp;quot;)
+      for i in range(count_each_npy/batch_size):
+          yield X_all[(i * batch_size):((i+1) * batch_size)], [y_all[j][(i * batch_size):((i+1) * batch_size)] for j in range(4)]
+      batch_idx += 1
+      batch_idx %= npy_file_count&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;h2&gt;替换之前直接使用online的数据集，使用offline数据集做训练&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;model.fit_generator(batch_gen(), samples_per_epoch=1280, nb_epoch=5, 
+                    nb_worker=2, pickle_safe=True, 
+                    validation_data=batch_gen(), nb_val_samples=160)
+model.save_weights(&amp;quot;captcha-offline.h5&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;p&gt;此时，一般会得到较为收敛的结果，我自己跑的是 train loss=0.08, val loss=0.1，但是evaluate的结果很差： 0.03 （使用online的数据集做evaluate）&lt;/p&gt;
+&lt;h2&gt;使用oneline的数据集做fine tuning&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;# train by online
+model.fit_generator(gen(), samples_per_epoch=1280, nb_epoch=5, 
+                    nb_worker=2, pickle_safe=True, 
+                    validation_data=gen(), nb_val_samples=160)
+model.save_weights(&amp;quot;captcha-online.h5&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;p&gt;注意：优化器使用adadelta，不要使用SGD， learning rate可不调。  &lt;/p&gt;
+&lt;p&gt;两次跑的结果对比如下：&lt;br&gt;
+&lt;a
+    class=&quot;gatsby-resp-image-link&quot;
+    href=&quot;/static/val_loss-9dd6f2fe76cc44b9a3348c0b5363ad5c-a9ea6.jpg&quot;
+    style=&quot;display: block&quot;
+    target=&quot;_blank&quot;
+    rel=&quot;noopener&quot;
+  &gt;
+  
+  &lt;span
+    class=&quot;gatsby-resp-image-wrapper&quot;
+    style=&quot;position: relative; display: block; ; max-width: 590px; margin-left: auto; margin-right: auto;&quot;
+  &gt;
+    &lt;span
+      class=&quot;gatsby-resp-image-background-image&quot;
+      style=&quot;padding-bottom: 60.35805626598465%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAMABQDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECBf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIQAxAAAAHu2I0K/8QAFxAAAwEAAAAAAAAAAAAAAAAAAAEQEf/aAAgBAQABBQI2O//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8BP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8BP//EABQQAQAAAAAAAAAAAAAAAAAAACD/2gAIAQEABj8CX//EABkQAAMBAQEAAAAAAAAAAAAAAAABMREQUf/aAAgBAQABPyGQx6KCLeKH/9oADAMBAAIAAwAAABCsz//EABURAQEAAAAAAAAAAAAAAAAAABAh/9oACAEDAQE/EIf/xAAUEQEAAAAAAAAAAAAAAAAAAAAQ/9oACAECAQE/ED//xAAcEAEAAgMAAwAAAAAAAAAAAAABABEhMXFRYfD/2gAIAQEAAT8QXOmLzEBWleYlCidigpfZ9v1NHJ//2Q==&apos;); background-size: cover; display: block;&quot;
+    &gt;
+      &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px white;&quot;
+        alt=&quot;validation loss - offline vs. online&quot;
+        title=&quot;&quot;
+        src=&quot;/static/val_loss-9dd6f2fe76cc44b9a3348c0b5363ad5c-f8fb9.jpg&quot;
+        srcset=&quot;/static/val_loss-9dd6f2fe76cc44b9a3348c0b5363ad5c-e8976.jpg 148w,
+/static/val_loss-9dd6f2fe76cc44b9a3348c0b5363ad5c-63df2.jpg 295w,
+/static/val_loss-9dd6f2fe76cc44b9a3348c0b5363ad5c-f8fb9.jpg 590w,
+/static/val_loss-9dd6f2fe76cc44b9a3348c0b5363ad5c-85e3d.jpg 885w,
+/static/val_loss-9dd6f2fe76cc44b9a3348c0b5363ad5c-d1924.jpg 1180w,
+/static/val_loss-9dd6f2fe76cc44b9a3348c0b5363ad5c-a9ea6.jpg 1564w&quot;
+        sizes=&quot;(max-width: 590px) 100vw, 590px&quot;
+      /&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    &lt;/p&gt;
+&lt;h2&gt;对模型做evaluate&lt;/h2&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;from tqdm import tqdm
+def evaluate(model, batch_num=32):
+    batch_acc = 0
+    generator = gen()
+    for i in tqdm(range(batch_num)):
+        X, y = next(generator)
+        y_pred = model.predict(X)
+        y_pred = np.argmax(y_pred, axis=2).T
+        y_true = np.argmax(y, axis=2).T
+        batch_acc += np.mean(map(np.array_equal, y_true, y_pred))
+    return batch_acc / batch_num
+
+evaluate(model)&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;p&gt;运行的结果：&lt;/p&gt;
+&lt;div class=&quot;gatsby-highlight&quot;&gt;
+      &lt;pre class=&quot;language-text&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;100%|██████████| 32/32 [00:04&amp;lt;00:00,  7.61it/s]
+0.9365234375&lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+&lt;h2&gt;原因分析&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;验证码的产生很随机，直接train一个model，可能需要耗费很长的时间才能走出。我自己训练下来，十几次才有一次会从loss在14.4突然降低到5.0附近，随机性比较大。&lt;br&gt;
+先用少量数据做pre-train，得到一个overfitting很厉害的model，然后在用online的数据继续train，这样两步法，会让整个训练的时间效率大大提升。  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;一个case：
+
+  &lt;a
+    class=&quot;gatsby-resp-image-link&quot;
+    href=&quot;/static/captcha-sample-acfc0df732829d255f39be8b01b224eb-0a6eb.jpg&quot;
+    style=&quot;display: block&quot;
+    target=&quot;_blank&quot;
+    rel=&quot;noopener&quot;
+  &gt;
+  
+  &lt;span
+    class=&quot;gatsby-resp-image-wrapper&quot;
+    style=&quot;position: relative; display: block; ; max-width: 590px; margin-left: auto; margin-right: auto;&quot;
+  &gt;
+    &lt;span
+      class=&quot;gatsby-resp-image-background-image&quot;
+      style=&quot;padding-bottom: 51.92307692307693%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAKABQDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECBf/EABQBAQAAAAAAAAAAAAAAAAAAAAH/2gAMAwEAAhADEAAAAe1dgoX/xAAYEAACAwAAAAAAAAAAAAAAAAABERIgMf/aAAgBAQABBQJmQyn/xAAUEQEAAAAAAAAAAAAAAAAAAAAQ/9oACAEDAQE/AT//xAAUEQEAAAAAAAAAAAAAAAAAAAAQ/9oACAECAQE/AT//xAAUEAEAAAAAAAAAAAAAAAAAAAAg/9oACAEBAAY/Al//xAAaEAACAgMAAAAAAAAAAAAAAAAAAREhEDFR/9oACAEBAAE/IXUih+IFlaP/2gAMAwEAAgADAAAAEOfP/8QAFBEBAAAAAAAAAAAAAAAAAAAAEP/aAAgBAwEBPxA//8QAFxEAAwEAAAAAAAAAAAAAAAAAARARUf/aAAgBAgEBPxCHV//EABsQAAMAAgMAAAAAAAAAAAAAAAABETFhIUFR/9oACAEBAAE/EK6tvB7p3uPdnJDydmA//9k=&apos;); background-size: cover; display: block;&quot;
+    &gt;
+      &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px white;&quot;
+        alt=&quot;captcha sample&quot;
+        title=&quot;&quot;
+        src=&quot;/static/captcha-sample-acfc0df732829d255f39be8b01b224eb-f8fb9.jpg&quot;
+        srcset=&quot;/static/captcha-sample-acfc0df732829d255f39be8b01b224eb-e8976.jpg 148w,
+/static/captcha-sample-acfc0df732829d255f39be8b01b224eb-63df2.jpg 295w,
+/static/captcha-sample-acfc0df732829d255f39be8b01b224eb-f8fb9.jpg 590w,
+/static/captcha-sample-acfc0df732829d255f39be8b01b224eb-0a6eb.jpg 832w&quot;
+        sizes=&quot;(max-width: 590px) 100vw, 590px&quot;
+      /&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    &lt;/p&gt;
+&lt;p&gt;很喜欢深度学习的原因之一，是这个东西是可以迭代的，这个现实世界非常契合。&lt;/p&gt;</content:encoded></item><item><title><![CDATA[CS is a big hummer]]></title><description><![CDATA[吴军：从计算机终究是一种工具 1/ 计算机终究是一个工具，早意识到这一点，早一点会脱离  计算机本位主义 2/ 我自己从大学接触计算机，就痴迷于写代码，而且认为写代码是大于天的一个工作，这让我走不出领域业余的困境。 3/ 只做计算机编程（CS…]]></description><link>https://huan9huan.com//cs-is-big-hummer/</link><guid isPermaLink="false">https://huan9huan.com//cs-is-big-hummer/</guid><pubDate>Sat, 14 Jul 2018 16:00:00 GMT</pubDate><content:encoded>&lt;p&gt;吴军：从计算机终究是一种工具&lt;/p&gt;
+&lt;p&gt;1/ 计算机终究是一个工具，早意识到这一点，早一点会脱离 &lt;em&gt;计算机本位主义&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;2/ 我自己从大学接触计算机，就痴迷于写代码，而且认为写代码是大于天的一个工作，这让我走不出领域业余的困境。&lt;/p&gt;
+&lt;p&gt;3/ 只做计算机编程（CS），单纯比拼写代码的能力高低，最后会落入到和年轻人比拼精力的境地，是一个深坑。&lt;/p&gt;
+&lt;p&gt;4/ 要重视领域知识的积累和深入，才能脱身码农的行列。战略调整是必须的，以前的战略是，写代码的IC；现在要调整为善于做产品的Maker&lt;/p&gt;
+&lt;p&gt;5/ 自我认知的纠正很难，从习惯做起，降低写代码的时间量，逐渐转换到研究问题上。&lt;/p&gt;</content:encoded></item><item><title><![CDATA[从张遇升精品课学到的]]></title><description><![CDATA[张遇升精品课 - 如何做精力管理的高手  核心摘录 基础的金字塔模型 - 体能、情绪、注意力和意义感 you are what you eat…]]></description><link>https://huan9huan.com//full-engagement/</link><guid isPermaLink="false">https://huan9huan.com//full-engagement/</guid><pubDate>Fri, 15 Jun 2018 10:00:00 GMT</pubDate><content:encoded>&lt;p&gt;张遇升精品课 - 如何做精力管理的高手 &lt;/p&gt;
+&lt;h2&gt;核心摘录&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;基础的金字塔模型 - 体能、情绪、注意力和意义感&lt;br&gt;
+you are what you eat&lt;br&gt;
+每天起来的几个事情 - 回忆梦，喝热水，左手刷牙，单脚站立，吃高蛋白的早餐&lt;br&gt;
+理论：昼夜平衡和内生平衡&lt;br&gt;
+午餐：少吃高热量高碳水化合物的事物，比如米饭，而是吃高蛋白的事物，这样热量的波动小，从而保证精力的稳定，符合人的小周期&lt;br&gt;
+喝水：每天是自己体重的1/32, 我就是4.7L，八瓶600ml的矿泉水&lt;br&gt;
+少吃多餐，也是符合人体小周期&lt;br&gt;
+量化食物：用NQI（营养热量比），从而筛选出绿色蔬菜是优质的食物，而米饭白面的这个值很小&lt;br&gt;
+健身可以无处不在，深蹲50下检验自己的体能是否正常&lt;br&gt;
+健身的量是每周180分钟  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;我目前能做到的&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;午餐的把控能力&lt;br&gt;
+喝水&lt;br&gt;
+少吃多餐&lt;br&gt;
+游泳&lt;br&gt;
+注意力管理，特别是如何制造一个无干扰环境&lt;br&gt;
+意义感，方向感  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;需要特别练习的4项&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;健身的量太少，目前大约是每周1h&lt;br&gt;
+重视蔬菜&lt;br&gt;
+没事别上床，使用行为认知学提升睡眠水平&lt;br&gt;
+注意力还是不够强，特别是喜欢在微博上消耗过长的时间  &lt;/p&gt;
+&lt;/blockquote&gt;</content:encoded></item><item><title><![CDATA[2009，曾经写过]]></title><description><![CDATA[用 huan9huan作为关键字，google了一下，发现自己曾经在2009年开过新浪博客，还写过几篇文章，真有意思。自己都快要忘记了，google还帮我记着（新浪你不要喊冤，对就是google帮我记着，虽然文章还是在你上面）。 挺好玩  http://blog.sina.com…]]></description><link>https://huan9huan.com//back-to-2009/</link><guid isPermaLink="false">https://huan9huan.com//back-to-2009/</guid><pubDate>Thu, 14 Jun 2018 16:00:00 GMT</pubDate><content:encoded>&lt;p&gt;用 huan9huan作为关键字，google了一下，发现自己曾经在2009年开过新浪博客，还写过几篇文章，真有意思。自己都快要忘记了，google还帮我记着（新浪你不要喊冤，对就是google帮我记着，虽然文章还是在你上面）。&lt;/p&gt;
+&lt;p&gt;挺好玩 &lt;a href=&quot;http://blog.sina.com.cn/huan9huan&quot;&gt;http://blog.sina.com.cn/huan9huan&lt;/a&gt; 一个无病呻吟的自己。&lt;br&gt;
+应该感谢自己，还有那么一段时间，并留下那么一些文章。&lt;/p&gt;
+&lt;p&gt;几个文章，看得出感情丰富的自己&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&quot;http://blog.sina.com.cn/s/blog_5cc7d2e50100bzzo.html&quot;&gt;过年两三事&lt;/a&gt;&lt;br&gt;
+&lt;a href=&quot;http://blog.sina.com.cn/s/blog_5cc7d2e50100breu.html&quot;&gt;北京印象&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;</content:encoded></item><item><title><![CDATA[你好，世界]]></title><description><![CDATA[看了看GatsbyJS, 很有意思，就使用他的blog starter做了这个, 最好的学习就是做出一个东西来。那就从今天开始吧。 目的 记录下自己的产品思路 关注技术和产品的细节]]></description><link>https://huan9huan.com//hello-world/</link><guid isPermaLink="false">https://huan9huan.com//hello-world/</guid><pubDate>Thu, 14 Jun 2018 10:00:00 GMT</pubDate><content:encoded>&lt;p&gt;看了看GatsbyJS, 很有意思，就使用他的blog starter做了这个, 最好的学习就是做出一个东西来。那就从今天开始吧。&lt;/p&gt;
+&lt;h2&gt;目的&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;记录下自己的产品思路&lt;br&gt;
+关注技术和产品的细节&lt;/p&gt;
+&lt;/blockquote&gt;</content:encoded></item></channel></rss>
