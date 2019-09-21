@@ -1,0 +1,12 @@
+#!/bin/bash
+while read oldrev newrev ref
+do
+    if [[ $ref =~ .*/master$ ]];
+    then
+echo "Master ref received.  Deploying master branch to production..."
+    git --work-tree=/var/www/huan9huan --git-dir=/root/huan9huan checkout -f
+    cd /var/www/huan9huan/packages/blog
+    yarn install
+    yarn build
+    fi
+done
